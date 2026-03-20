@@ -15,9 +15,13 @@
             --text-main: #d9d9d9;
             --text-gold: #e2c88f;
             --text-muted: #7a7a85;
-            
-            --cp: #e5a910; --hp: #990000; --mp: #003399;
-            --success: #4a9e4a; --danger: #cc3333; --warning: #ff9900;
+            --cp: #e5a910;
+            --hp: #990000;
+            --mp: #003399;
+            --xp: #6a5acd;
+            --success: #4a9e4a;
+            --danger: #cc3333;
+            --warning: #ff9900;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -32,7 +36,7 @@
             min-height: 100vh;
         }
 
-        /* Общие стили панелей */
+        /* ── Panels ── */
         .l2-panel {
             background: var(--panel-bg);
             border: 1px solid var(--border-gold);
@@ -53,158 +57,431 @@
             letter-spacing: 1px;
         }
 
-        /* Карточка персонажа (Компактная для двоих) */
+        /* ── Connection Badge ── */
+        .connection-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 12px;
+            margin-bottom: 12px;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-gold);
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .conn-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .conn-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--danger);
+            transition: background 0.3s;
+        }
+
+        .conn-dot.online {
+            background: var(--success);
+            box-shadow: 0 0 8px rgba(74, 158, 74, 0.6);
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .refresh-btn {
+            background: none;
+            border: 1px solid var(--border-gold);
+            color: var(--text-gold);
+            padding: 4px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 3px;
+            transition: 0.2s;
+        }
+
+        .refresh-btn:active { transform: scale(0.9); }
+
+        .refresh-btn.spinning {
+            animation: spin 0.5s linear;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Character Card ── */
         .char-card { padding: 10px; border-bottom: 1px solid #333; }
         .char-card:last-child { border-bottom: none; }
-        
-        .char-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .char-name { font-family: 'Cinzel', serif; font-size: 16px; font-weight: 800; color: #fff; }
-        .char-role { font-size: 10px; color: var(--text-gold); border: 1px solid var(--border-gold); padding: 2px 6px; border-radius: 10px; }
-        
-        .status-badge { font-size: 10px; font-weight: bold; text-transform: uppercase; display: flex; align-items: center; gap: 4px;}
+
+        .char-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .char-name {
+            font-family: 'Cinzel', serif;
+            font-size: 16px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .char-role {
+            font-size: 10px;
+            color: var(--text-gold);
+            border: 1px solid var(--border-gold);
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 6px;
+        }
+
+        .status-badge {
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
         .status-badge.alive { color: var(--success); }
         .status-badge.dead { color: var(--danger); animation: blink 2s infinite; }
-        
+        .status-badge.disconnected { color: var(--text-muted); }
+
         @keyframes blink { 50% { opacity: 0.5; } }
 
-        /* Бары (HP/MP) */
+        /* ── Bars (HP / MP / CP / XP) ── */
         .bar-container { display: flex; flex-direction: column; gap: 4px; }
-        .bar-row { display: flex; align-items: center; gap: 6px; height: 14px; }
-        .bar-label { font-family: 'Cinzel', serif; font-size: 10px; font-weight: 800; width: 20px; text-shadow: 1px 1px 0 #000; }
-        .bar-wrapper { flex: 1; height: 100%; background: #000; border: 1px solid #333; position: relative; }
-        .bar-fill { height: 100%; transition: width 0.3s; border-top: 1px solid rgba(255,255,255,0.3); }
+
+        .bar-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            height: 14px;
+        }
+
+        .bar-label {
+            font-family: 'Cinzel', serif;
+            font-size: 10px;
+            font-weight: 800;
+            width: 20px;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        .bar-wrapper {
+            flex: 1;
+            height: 100%;
+            background: #000;
+            border: 1px solid #333;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            transition: width 0.5s ease, background 0.15s;
+            border-top: 1px solid rgba(255,255,255,0.3);
+            position: relative;
+        }
+
         .bar-fill.cp { background: var(--cp); }
         .bar-fill.hp { background: var(--hp); }
         .bar-fill.mp { background: var(--mp); }
-        /* Маркер триггера авто-хила (линия на 40%) */
-        .heal-trigger-line { position: absolute; top: 0; bottom: 0; left: 40%; width: 2px; background: rgba(255, 255, 255, 0.8); z-index: 5; box-shadow: 0 0 5px #fff; }
+        .bar-fill.xp { background: var(--xp); }
 
-        /* Глобальные кнопки управления */
-        .global-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px; }
+        .bar-value {
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        .heal-trigger-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 5;
+            box-shadow: 0 0 5px #fff;
+        }
+
+        /* ── Global Controls ── */
+        .global-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 12px;
+        }
+
         .btn {
-            padding: 12px; font-family: 'Cinzel', serif; font-size: 14px; font-weight: 800;
-            border: 1px solid var(--border-gold); background: linear-gradient(180deg, #2a2a35, #121218);
-            color: var(--text-gold); cursor: pointer; text-transform: uppercase;
+            padding: 12px;
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            font-weight: 800;
+            border: 1px solid var(--border-gold);
+            background: linear-gradient(180deg, #2a2a35, #121218);
+            color: var(--text-gold);
+            cursor: pointer;
+            text-transform: uppercase;
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.5);
             transition: 0.2s;
         }
+
         .btn:active { transform: translateY(2px); }
         .btn.start { border-color: var(--success); color: var(--success); text-shadow: 0 0 10px rgba(74, 158, 74, 0.5); }
         .btn.stop { border-color: var(--danger); color: var(--danger); }
 
-        /* Настройки кликера и авто-действий */
-        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #333; }
+        /* ── Settings ── */
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #333;
+        }
+
+        .setting-row:last-child { border-bottom: none; }
+
         .setting-info h4 { font-size: 14px; color: #fff; margin-bottom: 4px; }
         .setting-info p { font-size: 10px; color: var(--text-muted); }
-        
-        /* Тумблер (Switch) в стиле L2 */
-        .l2-switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+
+        /* ── L2 Switch ── */
+        .l2-switch { position: relative; display: inline-block; width: 40px; height: 20px; flex-shrink: 0; }
         .l2-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #1a1a24; border: 1px solid #555; transition: .4s; }
-        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; background-color: var(--text-muted); transition: .4s; }
-        input:checked + .slider { border-color: var(--border-light); box-shadow: 0 0 10px rgba(194, 167, 112, 0.3); }
-        input:checked + .slider:before { transform: translateX(20px); background-color: var(--text-gold); }
 
-        /* Блок со скриншотом */
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: #1a1a24;
+            border: 1px solid #555;
+            transition: .4s;
+        }
+
+        .slider::before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 2px;
+            bottom: 2px;
+            background-color: var(--text-muted);
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            border-color: var(--border-light);
+            box-shadow: 0 0 10px rgba(194, 167, 112, 0.3);
+        }
+
+        input:checked + .slider::before {
+            transform: translateX(20px);
+            background-color: var(--text-gold);
+        }
+
+        /* ── Screenshot ── */
         .screenshot-container { padding: 12px; text-align: center; }
-        .screen-frame { border: 2px solid var(--border-gold); height: 150px; background: #000 url('https://i.imgur.com/your-l2-screen-placeholder.jpg') center/cover; position: relative; margin-bottom: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.8); }
-        .screen-frame::after { content: 'LIVE 🔴'; position: absolute; top: 5px; right: 5px; color: red; font-size: 10px; font-weight: bold; background: rgba(0,0,0,0.7); padding: 2px 4px; }
 
-        /* Грид аналитики и системы */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px; }
-        .stat-box { background: rgba(0,0,0,0.4); border: 1px solid #333; padding: 10px; text-align: center; }
-        .stat-val { font-family: 'Cinzel', serif; font-size: 18px; color: var(--text-gold); font-weight: bold; }
-        .stat-desc { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-top: 4px; }
+        .screen-frame {
+            border: 2px solid var(--border-gold);
+            height: 150px;
+            background: #000;
+            position: relative;
+            margin-bottom: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
 
-        /* Вкладки (Tabs логика) */
-        .tab-content { display: none; animation: fadeIn 0.3s; }
+        .screen-frame.has-image { background-size: cover; background-position: center; color: transparent; }
+
+        .screen-frame .live-tag {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            color: red;
+            font-size: 10px;
+            font-weight: bold;
+            background: rgba(0,0,0,0.7);
+            padding: 2px 4px;
+        }
+
+        /* ── Stats Grid ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            padding: 12px;
+        }
+
+        .stat-box {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid #333;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .stat-val {
+            font-family: 'Cinzel', serif;
+            font-size: 18px;
+            color: var(--text-gold);
+            font-weight: bold;
+        }
+
+        .stat-desc {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        /* ── Log Panel ── */
+        .log-panel {
+            padding: 10px;
+            font-family: monospace;
+            font-size: 11px;
+            max-height: 160px;
+            overflow-y: auto;
+        }
+
+        .log-panel .log-line { padding: 2px 0; }
+
+        /* ── Select ── */
+        .l2-select {
+            background: #000;
+            color: var(--text-gold);
+            border: 1px solid var(--border-gold);
+            padding: 8px;
+            font-family: 'Cinzel', serif;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        /* ── Tabs ── */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
         .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Нижняя навигация */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background: var(--bg-dark); border-top: 1px solid var(--border-gold); display: flex; justify-content: space-around; align-items: center; z-index: 100; box-shadow: 0 -5px 20px rgba(0,0,0,0.9); }
-        .nav-item { color: var(--text-muted); font-family: 'Cinzel', serif; font-size: 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; transition: 0.3s; width: 25%; }
-        .nav-item.active { color: var(--text-gold); text-shadow: 0 0 10px rgba(194, 167, 112, 0.5); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Bottom Nav ── */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 65px;
+            background: var(--bg-dark);
+            border-top: 1px solid var(--border-gold);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.9);
+        }
+
+        .nav-item {
+            color: var(--text-muted);
+            font-family: 'Cinzel', serif;
+            font-size: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 25%;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .nav-item.active {
+            color: var(--text-gold);
+            text-shadow: 0 0 10px rgba(194, 167, 112, 0.5);
+        }
+
         .nav-icon { font-size: 20px; }
     </style>
 </head>
 <body>
 
-    <!-- Вкладка 1: MONITOR (Мониторинг персонажей) -->
+    <!-- Connection Bar -->
+    <div class="connection-bar">
+        <div class="conn-badge">
+            <div class="conn-dot" id="connDot"></div>
+            <span id="connLabel">Connecting…</span>
+        </div>
+        <span id="uptimeLabel" style="color:var(--text-muted)">—</span>
+        <button class="refresh-btn" id="refreshBtn" title="Refresh">🔄</button>
+    </div>
+
+    <!-- ═══════ TAB 1 : MONITOR ═══════ -->
     <div id="tab-monitor" class="tab-content active">
-        
+
         <div class="global-controls">
-            <button class="btn start" onclick="tgHaptic('heavy')">▶ Start Farm</button>
-            <button class="btn stop" onclick="tgHaptic('heavy')">⏹ Stop All</button>
+            <button class="btn start" id="btnStartAll">▶ Start Farm</button>
+            <button class="btn stop" id="btnStopAll">⏹ Stop All</button>
         </div>
 
         <div class="l2-panel">
             <div class="panel-title">Party Status</div>
-            
-            <!-- MAIN CHARACTER -->
-            <div class="char-card">
-                <div class="char-header">
-                    <div>
-                        <span class="char-name">DestroGod</span>
-                        <span class="char-role">MAIN</span>
-                    </div>
-                    <div class="status-badge alive">🟢 Farming</div>
-                </div>
-                <div class="bar-container">
-                    <div class="bar-row"><div class="bar-label" style="color:var(--cp)">CP</div><div class="bar-wrapper"><div class="bar-fill cp" style="width: 100%;"></div></div></div>
-                    <div class="bar-row"><div class="bar-label" style="color:var(--hp)">HP</div><div class="bar-wrapper"><div class="bar-fill hp" id="mainHp" style="width: 85%;"></div><div class="heal-trigger-line"></div></div></div>
-                    <div class="bar-row"><div class="bar-label" style="color:var(--mp)">MP</div><div class="bar-wrapper"><div class="bar-fill mp" style="width: 40%;"></div></div></div>
-                </div>
-            </div>
-
-            <!-- BUFFER CHARACTER -->
-            <div class="char-card">
-                <div class="char-header">
-                    <div>
-                        <span class="char-name">BuffSlave</span>
-                        <span class="char-role">BUFFER</span>
-                    </div>
-                    <div class="status-badge alive">🟢 Following</div>
-                </div>
-                <div class="bar-container">
-                    <div class="bar-row"><div class="bar-label" style="color:var(--hp)">HP</div><div class="bar-wrapper"><div class="bar-fill hp" style="width: 100%;"></div></div></div>
-                    <div class="bar-row"><div class="bar-label" style="color:var(--mp)">MP</div><div class="bar-wrapper"><div class="bar-fill mp" style="width: 75%;"></div></div></div>
-                </div>
+            <div id="partyContainer">
+                <!-- characters rendered here -->
             </div>
         </div>
 
-        <!-- Мини-логи (Alerts) -->
-        <div class="l2-panel" style="padding: 10px; font-family: monospace; font-size: 11px;">
-            <div style="color: var(--text-muted)">[14:02:11] DestroGod engaged Varka Silenos.</div>
-            <div style="color: var(--success)">[14:03:05] Drop: 12,500 Adena.</div>
-            <div style="color: var(--warning)">[14:05:22] Warning: Main HP < 40%. Triggering Buffer Heal.</div>
-            <div style="color: var(--success)">[14:05:24] BuffSlave used Greater Heal.</div>
+        <div class="l2-panel">
+            <div class="panel-title">Event Log</div>
+            <div class="log-panel" id="logPanel">
+                <div class="log-line" style="color:var(--text-muted)">Waiting for events…</div>
+            </div>
         </div>
     </div>
 
-    <!-- Вкладка 2: AUTO (Настройка кликера) -->
+    <!-- ═══════ TAB 2 : AUTO ═══════ -->
     <div id="tab-auto" class="tab-content">
         <div class="l2-panel">
             <div class="panel-title">Automation Logic</div>
-            
+
             <div class="setting-row">
                 <div class="setting-info">
                     <h4>Auto-Heal (Buffer)</h4>
-                    <p>Buffer heals Main if HP < 40%</p>
+                    <p>Buffer heals Main if HP &lt; 40%</p>
                 </div>
                 <label class="l2-switch">
-                    <input type="checkbox" checked onchange="tgHaptic('light')">
+                    <input type="checkbox" id="optAutoHeal" checked>
                     <span class="slider"></span>
                 </label>
             </div>
 
             <div class="setting-row">
                 <div class="setting-info">
-                    <h4>Auto-Ressurect</h4>
-                    <p>Buffer uses Ressurection on Main death</p>
+                    <h4>Auto-Resurrect</h4>
+                    <p>Buffer uses Resurrection on Main death</p>
                 </div>
                 <label class="l2-switch">
-                    <input type="checkbox" checked onchange="tgHaptic('light')">
+                    <input type="checkbox" id="optAutoRes" checked>
                     <span class="slider"></span>
                 </label>
             </div>
@@ -215,7 +492,7 @@
                     <p>Stops clicker if any char drops</p>
                 </div>
                 <label class="l2-switch">
-                    <input type="checkbox" checked onchange="tgHaptic('light')">
+                    <input type="checkbox" id="optAutoStop" checked>
                     <span class="slider"></span>
                 </label>
             </div>
@@ -223,143 +500,571 @@
 
         <div class="l2-panel">
             <div class="panel-title">Active Rotation Profile</div>
-            <div class="setting-row" style="justify-content: center;">
-                <select style="background: #000; color: var(--text-gold); border: 1px solid var(--border-gold); padding: 8px; font-family: 'Cinzel'; width: 100%;">
-                    <option>🔥 Varka Farm (Destro + SE)</option>
-                    <option>⚔️ PvP Mode (Macro setup)</option>
-                    <option>🛡️ Safe Farm (Catacombs)</option>
+            <div class="setting-row" style="justify-content:center;">
+                <select class="l2-select" id="profileSelect">
+                    <option value="varka">🔥 Varka Farm (Destro + SE)</option>
+                    <option value="pvp">⚔️ PvP Mode (Macro setup)</option>
+                    <option value="cata">🛡️ Safe Farm (Catacombs)</option>
                 </select>
             </div>
         </div>
     </div>
 
-    <!-- Вкладка 3: VISION (Скриншоты и Аналитика) -->
+    <!-- ═══════ TAB 3 : VISION ═══════ -->
     <div id="tab-vision" class="tab-content">
         <div class="l2-panel">
             <div class="panel-title">Live Vision (Template Matcher)</div>
             <div class="screenshot-container">
-                <div class="screen-frame"></div>
-                <button class="btn" style="width: 100%; font-size: 12px;" onclick="tgHaptic('medium')">📸 Request New Screenshot</button>
+                <div class="screen-frame" id="screenFrame">
+                    No screenshot yet
+                    <span class="live-tag">LIVE 🔴</span>
+                </div>
+                <button class="btn" style="width:100%;font-size:12px;" id="btnScreenshot">📸 Request New Screenshot</button>
             </div>
         </div>
 
         <div class="l2-panel">
             <div class="panel-title">Farm Analytics</div>
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <div class="stat-val">4.2KK / h</div>
-                    <div class="stat-desc">EXP Speed</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-val">2h 15m</div>
-                    <div class="stat-desc">ETA to Lvl Up</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-val" style="color: var(--danger)">0</div>
-                    <div class="stat-desc">Deaths Today</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-val" style="color: var(--success)">5h 42m</div>
-                    <div class="stat-desc">Session Time</div>
-                </div>
+            <div class="stats-grid" id="analyticsGrid">
+                <!-- rendered dynamically -->
             </div>
         </div>
     </div>
 
-    <!-- Вкладка 4: SYSTEM (Железо) -->
+    <!-- ═══════ TAB 4 : SYSTEM ═══════ -->
     <div id="tab-system" class="tab-content">
         <div class="l2-panel">
             <div class="panel-title">Hardware Monitor</div>
-            <div class="setting-row">
-                <div class="setting-info" style="width: 100%;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                        <h4>CPU Usage (Ryzen 5)</h4>
-                        <span style="color: var(--warning)">65°C</span>
-                    </div>
-                    <div class="bar-wrapper" style="height: 8px;"><div class="bar-fill" style="width: 45%; background: #c2a770;"></div></div>
-                </div>
-            </div>
-            <div class="setting-row">
-                <div class="setting-info" style="width: 100%;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                        <h4>RAM Usage</h4>
-                        <span>12.4 / 32 GB</span>
-                    </div>
-                    <div class="bar-wrapper" style="height: 8px;"><div class="bar-fill" style="width: 38%; background: #c2a770;"></div></div>
-                </div>
-            </div>
-            <div class="setting-row">
-                <div class="setting-info" style="width: 100%;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                        <h4>L2.exe (Main) Memory</h4>
-                        <span>1,204 MB</span>
-                    </div>
-                </div>
+            <div id="systemRows">
+                <!-- rendered dynamically -->
             </div>
         </div>
     </div>
 
-    <!-- Нижняя навигация -->
+    <!-- ═══════ BOTTOM NAV ═══════ -->
     <div class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('monitor', this)">
+        <div class="nav-item active" data-tab="monitor">
             <div class="nav-icon">⚔️</div><span>Monitor</span>
         </div>
-        <div class="nav-item" onclick="switchTab('auto', this)">
+        <div class="nav-item" data-tab="auto">
             <div class="nav-icon">⚙️</div><span>Auto</span>
         </div>
-        <div class="nav-item" onclick="switchTab('vision', this)">
+        <div class="nav-item" data-tab="vision">
             <div class="nav-icon">👁️</div><span>Vision</span>
         </div>
-        <div class="nav-item" onclick="switchTab('system', this)">
+        <div class="nav-item" data-tab="system">
             <div class="nav-icon">🖥️</div><span>System</span>
         </div>
     </div>
 
-    <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
+<script>
+/* ═══════════════════════════════════════════════
+   L2 Bot Dashboard — unified controller
+   ═══════════════════════════════════════════════ */
 
-        // Функция вибрации (если поддерживается устройством)
-        function tgHaptic(style = 'light') {
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred(style);
-        }
+// ── Telegram Web App ──
+const tg = window.Telegram.WebApp;
+tg.expand();
+tg.ready();
+if (tg.BackButton) {
+    tg.BackButton.show();
+    tg.BackButton.onClick(() => tg.close());
+}
 
-        // Логика переключения вкладок
-        function switchTab(tabId, element) {
-            tgHaptic('light');
-            
-            // Скрываем все вкладки
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            // Убираем активный класс у всех кнопок меню
-            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            
-            // Показываем нужную вкладку и активируем кнопку
-            document.getElementById('tab-' + tabId).classList.add('active');
-            element.classList.add('active');
-        }
+function haptic(style) {
+    try { tg.HapticFeedback.impactOccurred(style); } catch (_) {}
+}
 
-        // Симуляция работы логики (Мейн теряет ХП, баффер хилит)
-        setInterval(() => {
-            const hpBar = document.getElementById('mainHp');
-            if(!hpBar) return;
-            
-            let currentHp = parseInt(hpBar.style.width);
-            
-            // Мейна бьют
-            if(currentHp > 35) {
-                hpBar.style.width = (currentHp - Math.floor(Math.random() * 10)) + '%';
-            } 
-            // Триггер авто-хила (Меньше 40%)
-            else {
-                // Имитация хила от баффера
-                hpBar.style.background = '#fff'; // Вспышка хила
-                setTimeout(() => {
-                    hpBar.style.background = 'var(--hp)';
-                    hpBar.style.width = '90%';
-                    tgHaptic('success'); // Вибрация при спасительном хиле
-                }, 150);
+function hapticNotify(type) {
+    try { tg.HapticFeedback.notificationOccurred(type); } catch (_) {}
+}
+
+// ── Config ──
+const API_BASE = window.location.hostname === 'localhost'
+    ? 'http://localhost:8765'
+    : 'http://192.168.1.18:8765';
+const WS_URL  = API_BASE.replace('http', 'ws') + '/ws';
+
+// ── State ──
+let data = null;          // current dashboard snapshot
+let ws   = null;          // websocket handle
+let reconnectTimer = null;
+let logLines = [];        // event log buffer (max 80)
+
+// ── DOM refs ──
+const $connDot       = document.getElementById('connDot');
+const $connLabel     = document.getElementById('connLabel');
+const $uptimeLabel   = document.getElementById('uptimeLabel');
+const $partyContainer= document.getElementById('partyContainer');
+const $logPanel      = document.getElementById('logPanel');
+const $analyticsGrid = document.getElementById('analyticsGrid');
+const $systemRows    = document.getElementById('systemRows');
+const $screenFrame   = document.getElementById('screenFrame');
+const $refreshBtn    = document.getElementById('refreshBtn');
+
+// ═══════ TABS ═══════
+document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+        haptic('light');
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById('tab-' + item.dataset.tab).classList.add('active');
+        item.classList.add('active');
+    });
+});
+
+// ═══════ BUTTONS ═══════
+document.getElementById('btnStartAll').addEventListener('click', () => {
+    haptic('heavy');
+    sendAction('start_all');
+    showToast('▶ Starting all clickers…');
+});
+
+document.getElementById('btnStopAll').addEventListener('click', () => {
+    haptic('heavy');
+    sendAction('stop_all');
+    showToast('⏹ Stopping all clickers…');
+});
+
+document.getElementById('btnScreenshot').addEventListener('click', () => {
+    haptic('heavy');
+    sendAction('screenshot');
+    showToast('📸 Screenshot requested');
+});
+
+$refreshBtn.addEventListener('click', () => {
+    haptic('medium');
+    $refreshBtn.classList.add('spinning');
+    requestRefresh();
+    setTimeout(() => {
+        $refreshBtn.classList.remove('spinning');
+        hapticNotify('success');
+    }, 500);
+});
+
+// Settings toggles
+document.querySelectorAll('.l2-switch input').forEach(input => {
+    input.addEventListener('change', () => {
+        haptic('light');
+        sendAction('update_setting', {
+            key: input.id,
+            value: input.checked
+        });
+    });
+});
+
+document.getElementById('profileSelect').addEventListener('change', (e) => {
+    haptic('medium');
+    sendAction('set_profile', { profile: e.target.value });
+    showToast('Profile → ' + e.target.selectedOptions[0].text);
+});
+
+// ═══════ WEBSOCKET ═══════
+function connectWebSocket() {
+    try {
+        ws = new WebSocket(WS_URL);
+
+        ws.onopen = () => {
+            console.log('✅ WS connected');
+            setConnectionStatus(true);
+            ws.send(JSON.stringify({ action: 'refresh' }));
+        };
+
+        ws.onmessage = (event) => {
+            try {
+                const msg = JSON.parse(event.data);
+                if (msg.type === 'update') {
+                    data = msg.data;
+                    render();
+                } else if (msg.type === 'log') {
+                    pushLog(msg.line);
+                }
+            } catch (e) {
+                console.error('WS parse error', e);
             }
-        }, 2000);
-    </script>
+        };
+
+        ws.onerror = () => {};
+
+        ws.onclose = () => {
+            console.log('❌ WS closed');
+            setConnectionStatus(false);
+            reconnectTimer = setTimeout(connectWebSocket, 5000);
+        };
+    } catch (_) {
+        loadREST();
+    }
+}
+
+// ── REST fallback ──
+async function loadREST() {
+    try {
+        const [sRes, cRes, yRes, kRes] = await Promise.all([
+            fetch(API_BASE + '/api/status'),
+            fetch(API_BASE + '/api/characters'),
+            fetch(API_BASE + '/api/system'),
+            fetch(API_BASE + '/api/clickers')
+        ]);
+
+        const status   = await sRes.json();
+        const chars    = await cRes.json();
+        const system   = await yRes.json();
+        const clickers = await kRes.json();
+
+        data = {
+            status: status.status,
+            uptime: status.uptime,
+            characters: chars.characters,
+            system,
+            clickers: clickers.clickers,
+            timestamp: Date.now()
+        };
+
+        setConnectionStatus(true);
+        render();
+    } catch (_) {
+        data = getDemoData();
+        setConnectionStatus(false);
+        render();
+    }
+}
+
+// ── Send action ──
+async function sendAction(action, extra = {}) {
+    const payload = JSON.stringify({ action, ...extra });
+
+    // prefer WS
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(payload);
+        return;
+    }
+
+    // REST fallback
+    try {
+        await fetch(API_BASE + '/api/action', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: payload
+        });
+    } catch (e) {
+        console.error('sendAction error', e);
+    }
+
+    // also forward to Telegram bot via sendData
+    try { tg.sendData(payload); } catch (_) {}
+}
+
+function requestRefresh() {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ action: 'refresh' }));
+    } else {
+        loadREST();
+    }
+}
+
+// ═══════ RENDER ═══════
+function render() {
+    if (!data) return;
+    renderConnectionBar();
+    renderParty();
+    renderAnalytics();
+    renderSystem();
+}
+
+function renderConnectionBar() {
+    $uptimeLabel.textContent = data.uptime != null ? formatUptime(data.uptime) : '—';
+}
+
+function setConnectionStatus(online) {
+    $connDot.classList.toggle('online', online);
+    $connLabel.textContent = online ? 'Online' : 'Offline';
+}
+
+// ── Party ──
+function renderParty() {
+    const chars = data.characters;
+    if (!chars) return;
+
+    let html = '';
+    for (const [id, c] of Object.entries(chars)) {
+        const alive        = c.is_alive !== false;
+        const connected    = c.is_connected !== false;
+        const statusClass  = !connected ? 'disconnected' : !alive ? 'dead' : 'alive';
+        const statusText   = !connected ? '🔌 Offline' : !alive ? '💀 Dead' : '🟢 Active';
+        const roleTag      = id.toUpperCase();
+        const healLine     = id === 'main'
+            ? `<div class="heal-trigger-line" style="left:${data.healTrigger || 40}%"></div>`
+            : '';
+
+        html += `
+        <div class="char-card">
+            <div class="char-header">
+                <div>
+                    <span class="char-name">${c.label || id}</span>
+                    <span class="char-role">${roleTag}</span>
+                </div>
+                <div class="status-badge ${statusClass}">${statusText}</div>
+            </div>
+            <div class="bar-container">
+                ${c.cp != null ? barHTML('CP', 'cp', c.cp) : ''}
+                ${barHTML('HP', 'hp', c.hp ?? 100, healLine)}
+                ${barHTML('MP', 'mp', c.mp ?? 100)}
+                ${c.xp != null ? barHTML('XP', 'xp', c.xp, '', true) : ''}
+            </div>
+        </div>`;
+    }
+
+    $partyContainer.innerHTML = html;
+}
+
+function barHTML(label, cls, value, extra = '', decimal = false) {
+    const color = `var(--${cls})`;
+    const display = decimal ? value.toFixed(1) + '%' : Math.round(value) + '%';
+    return `
+        <div class="bar-row">
+            <div class="bar-label" style="color:${color}">${label}</div>
+            <div class="bar-wrapper">
+                <div class="bar-fill ${cls}" style="width:${Math.min(value, 100)}%">
+                    <div class="bar-value">${display}</div>
+                </div>
+                ${extra}
+            </div>
+        </div>`;
+}
+
+// ── Analytics ──
+function renderAnalytics() {
+    const chars    = data.characters ? Object.values(data.characters) : [];
+    const clickers = data.clickers  ? Object.values(data.clickers)   : [];
+
+    const deaths      = chars.reduce((s, c) => s + (c.death_count || 0), 0);
+    const disconnects = chars.reduce((s, c) => s + (c.disconnect_count || 0), 0);
+    const avgXP       = chars.length ? chars.reduce((s, c) => s + (c.xp || 0), 0) / chars.length : 0;
+    const cycles      = clickers.reduce((s, c) => s + (c.cycles || 0), 0);
+    const sessionSec  = clickers.reduce((s, c) => s + (c.uptime || 0), 0);
+
+    $analyticsGrid.innerHTML = `
+        <div class="stat-box">
+            <div class="stat-val">${avgXP.toFixed(1)}%</div>
+            <div class="stat-desc">Avg XP</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-val">${cycles}</div>
+            <div class="stat-desc">Cycles</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-val" style="color:var(--danger)">${deaths}</div>
+            <div class="stat-desc">Deaths</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-val" style="color:var(--success)">${formatUptime(sessionSec || data.uptime || 0)}</div>
+            <div class="stat-desc">Session</div>
+        </div>
+    `;
+}
+
+// ── System ──
+function renderSystem() {
+    const sys = data.system;
+    if (!sys) return;
+
+    const rows = [
+        { label: 'CPU Usage',  value: sys.cpu + '%',       bar: sys.cpu,  extra: sys.cpu_temp ? sys.cpu_temp + '°C' : '' },
+        { label: 'RAM Usage',  value: sys.ram + '%',       bar: sys.ram,  extra: sys.ram_used ? sys.ram_used : '' },
+        { label: 'GPU Temp',   value: sys.gpu_temp ? sys.gpu_temp + '°C' : '—', bar: sys.gpu_temp ? (sys.gpu_temp / 100) * 100 : 0 },
+    ];
+
+    $systemRows.innerHTML = rows.map(r => `
+        <div class="setting-row">
+            <div class="setting-info" style="width:100%">
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                    <h4>${r.label}</h4>
+                    <span style="color:${tempColor(r.bar)}">${r.extra || r.value}</span>
+                </div>
+                <div class="bar-wrapper" style="height:8px">
+                    <div class="bar-fill" style="width:${Math.min(r.bar, 100)}%;background:${tempColor(r.bar)}"></div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function tempColor(v) {
+    if (v < 50) return 'var(--success)';
+    if (v < 80) return 'var(--warning)';
+    return 'var(--danger)';
+}
+
+// ═══════ LOG ═══════
+function pushLog(line) {
+    logLines.push(line);
+    if (logLines.length > 80) logLines.shift();
+    renderLog();
+}
+
+function renderLog() {
+    $logPanel.innerHTML = logLines.map(l => `<div class="log-line">${l}</div>`).join('');
+    $logPanel.scrollTop = $logPanel.scrollHeight;
+}
+
+// ═══════ DEMO DATA ═══════
+function getDemoData() {
+    return {
+        status: 'offline',
+        uptime: 7234,
+        healTrigger: 40,
+        characters: {
+            main: {
+                label: 'DestroGod',
+                is_alive: true,
+                is_connected: true,
+                hp: 85, cp: 92, mp: 40, xp: 45.3,
+                death_count: 2,
+                disconnect_count: 0
+            },
+            buffer: {
+                label: 'BuffSlave',
+                is_alive: true,
+                is_connected: true,
+                hp: 100, cp: 100, mp: 75, xp: 12.7,
+                death_count: 0,
+                disconnect_count: 1
+            }
+        },
+        system: {
+            cpu: 45, ram: 62,
+            gpu_temp: 72, cpu_temp: 68,
+            ram_used: '12.4 / 32 GB'
+        },
+        clickers: {
+            main: {
+                state: 'running',
+                cycles: 1247,
+                total_clicks: 7482,
+                cps: 2.3,
+                uptime: 7200
+            }
+        }
+    };
+}
+
+// ═══════ HELPERS ═══════
+function formatUptime(sec) {
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+function showToast(message) {
+    const el = document.createElement('div');
+    el.style.cssText = `
+        position:fixed; top:20px; left:50%; z-index:1000;
+        transform:translateX(-50%) translateY(-100px);
+        background:linear-gradient(135deg,rgba(212,175,55,.95),rgba(255,215,0,.95));
+        color:#0a0e1a; padding:10px 22px; border-radius:24px;
+        font-weight:700; font-size:13px;
+        box-shadow:0 8px 32px rgba(212,175,55,.4);
+        transition:transform .3s ease;
+        backdrop-filter:blur(10px);
+    `;
+    el.textContent = message;
+    document.body.appendChild(el);
+    requestAnimationFrame(() => { el.style.transform = 'translateX(-50%) translateY(0)'; });
+    setTimeout(() => {
+        el.style.transform = 'translateX(-50%) translateY(-100px)';
+        setTimeout(() => el.remove(), 300);
+    }, 2000);
+}
+
+// ═══════ DEMO SIMULATION (runs only when using demo data) ═══════
+let simInterval = null;
+
+function startSimulation() {
+    if (simInterval) return;
+
+    pushLog(`<span style="color:var(--text-muted)">[${ts()}] Dashboard loaded — demo mode</span>`);
+
+    simInterval = setInterval(() => {
+        if (!data || !data.characters?.main) return;
+
+        const main = data.characters.main;
+        const dmg  = Math.floor(Math.random() * 12) + 3;
+        main.hp    = Math.max(0, main.hp - dmg);
+        main.mp    = Math.max(0, main.mp - Math.floor(Math.random() * 3));
+
+        pushLog(`<span style="color:var(--text-muted)">[${ts()}] DestroGod took ${dmg} dmg → HP ${main.hp}%</span>`);
+
+        if (main.hp > 0 && main.hp < (data.healTrigger || 40)) {
+            pushLog(`<span style="color:var(--warning)">[${ts()}] ⚠ HP below threshold! Triggering heal…</span>`);
+            setTimeout(() => {
+                main.hp = 90;
+                main.mp = Math.min(100, main.mp + 20);
+                pushLog(`<span style="color:var(--success)">[${ts()}] ✚ BuffSlave → Greater Heal → HP ${main.hp}%</span>`);
+                hapticNotify('success');
+                render();
+            }, 400);
+        }
+
+        if (main.hp <= 0) {
+            main.is_alive = false;
+            main.death_count++;
+            pushLog(`<span style="color:var(--danger)">[${ts()}] 💀 DestroGod has died!</span>`);
+            hapticNotify('error');
+
+            setTimeout(() => {
+                main.is_alive = true;
+                main.hp = 100;
+                main.mp = 60;
+                pushLog(`<span style="color:var(--success)">[${ts()}] ✦ BuffSlave used Resurrection</span>`);
+                render();
+            }, 3000);
+        }
+
+        // random adena
+        if (Math.random() < 0.25) {
+            const adena = (Math.floor(Math.random() * 30) + 5) * 1000;
+            pushLog(`<span style="color:var(--success)">[${ts()}] 💰 Drop: ${adena.toLocaleString()} Adena</span>`);
+        }
+
+        data.uptime += 2;
+        data.clickers.main.cycles++;
+        render();
+    }, 2000);
+}
+
+function ts() {
+    const d = new Date();
+    return [d.getHours(), d.getMinutes(), d.getSeconds()].map(v => String(v).padStart(2, '0')).join(':');
+}
+
+// ═══════ INIT ═══════
+(function init() {
+    // Try real connection first
+    connectWebSocket();
+
+    // If no real data in 3 s → fall back to demo
+    setTimeout(() => {
+        if (!data) {
+            data = getDemoData();
+            render();
+            startSimulation();
+        }
+    }, 3000);
+
+    // WS keepalive
+    setInterval(() => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ action: 'ping' }));
+        }
+    }, 30000);
+})();
+
+// Cleanup
+window.addEventListener('beforeunload', () => {
+    clearInterval(simInterval);
+    clearTimeout(reconnectTimer);
+    if (ws) ws.close();
+});
+</script>
 </body>
 </html>
