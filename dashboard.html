@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>L2 Bot Dashboard</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --panel-bg: rgba(20, 20, 28, 0.9);
+            --border-gold: #8c734b;
+            --border-light: #c2a770;
+            --text-main: #d9d9d9;
+            --text-gold: #e2c88f;
+            --text-muted: #7a7a85;
+            
+            --cp: #e5a910; --hp: #990000; --mp: #003399;
+            --success: #4a9e4a; --danger: #cc3333; --warning: #ff9900;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 0%, rgba(30, 30, 40, 0.8) 0%, transparent 60%);
+            color: var(--text-main);
+            padding: 12px;
+            padding-bottom: 80px;
+            min-height: 100vh;
+        }
+
+        /* Общие стили панелей */
+        .l2-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-gold);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 4px 10px rgba(0,0,0,0.5);
+            margin-bottom: 12px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .panel-title {
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            color: var(--text-gold);
+            text-align: center;
+            padding: 8px;
+            border-bottom: 1px solid var(--border-gold);
+            background: linear-gradient(90deg, transparent, rgba(140, 115, 75, 0.2), transparent);
+            letter-spacing: 1px;
+        }
+
+        /* Карточка персонажа (Компактная для двоих) */
+        .char-card { padding: 10px; border-bottom: 1px solid #333; }
+        .char-card:last-child { border-bottom: none; }
+        
+        .char-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .char-name { font-family: 'Cinzel', serif; font-size: 16px; font-weight: 800; color: #fff; }
+        .char-role { font-size: 10px; color: var(--text-gold); border: 1px solid var(--border-gold); padding: 2px 6px; border-radius: 10px; }
+        
+        .status-badge { font-size: 10px; font-weight: bold; text-transform: uppercase; display: flex; align-items: center; gap: 4px;}
+        .status-badge.alive { color: var(--success); }
+        .status-badge.dead { color: var(--danger); animation: blink 2s infinite; }
+        
+        @keyframes blink { 50% { opacity: 0.5; } }
+
+        /* Бары (HP/MP) */
+        .bar-container { display: flex; flex-direction: column; gap: 4px; }
+        .bar-row { display: flex; align-items: center; gap: 6px; height: 14px; }
+        .bar-label { font-family: 'Cinzel', serif; font-size: 10px; font-weight: 800; width: 20px; text-shadow: 1px 1px 0 #000; }
+        .bar-wrapper { flex: 1; height: 100%; background: #000; border: 1px solid #333; position: relative; }
+        .bar-fill { height: 100%; transition: width 0.3s; border-top: 1px solid rgba(255,255,255,0.3); }
+        .bar-fill.cp { background: var(--cp); }
+        .bar-fill.hp { background: var(--hp); }
+        .bar-fill.mp { background: var(--mp); }
+        /* Маркер триггера авто-хила (линия на 40%) */
+        .heal-trigger-line { position: absolute; top: 0; bottom: 0; left: 40%; width: 2px; background: rgba(255, 255, 255, 0.8); z-index: 5; box-shadow: 0 0 5px #fff; }
+
+        /* Глобальные кнопки управления */
+        .global-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px; }
+        .btn {
+            padding: 12px; font-family: 'Cinzel', serif; font-size: 14px; font-weight: 800;
+            border: 1px solid var(--border-gold); background: linear-gradient(180deg, #2a2a35, #121218);
+            color: var(--text-gold); cursor: pointer; text-transform: uppercase;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.5);
+            transition: 0.2s;
+        }
+        .btn:active { transform: translateY(2px); }
+        .btn.start { border-color: var(--success); color: var(--success); text-shadow: 0 0 10px rgba(74, 158, 74, 0.5); }
+        .btn.stop { border-color: var(--danger); color: var(--danger); }
+
+        /* Настройки кликера и авто-действий */
+        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #333; }
+        .setting-info h4 { font-size: 14px; color: #fff; margin-bottom: 4px; }
+        .setting-info p { font-size: 10px; color: var(--text-muted); }
+        
+        /* Тумблер (Switch) в стиле L2 */
+        .l2-switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .l2-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #1a1a24; border: 1px solid #555; transition: .4s; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; background-color: var(--text-muted); transition: .4s; }
+        input:checked + .slider { border-color: var(--border-light); box-shadow: 0 0 10px rgba(194, 167, 112, 0.3); }
+        input:checked + .slider:before { transform: translateX(20px); background-color: var(--text-gold); }
+
+        /* Блок со скриншотом */
+        .screenshot-container { padding: 12px; text-align: center; }
+        .screen-frame { border: 2px solid var(--border-gold); height: 150px; background: #000 url('https://i.imgur.com/your-l2-screen-placeholder.jpg') center/cover; position: relative; margin-bottom: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.8); }
+        .screen-frame::after { content: 'LIVE 🔴'; position: absolute; top: 5px; right: 5px; color: red; font-size: 10px; font-weight: bold; background: rgba(0,0,0,0.7); padding: 2px 4px; }
+
+        /* Грид аналитики и системы */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px; }
+        .stat-box { background: rgba(0,0,0,0.4); border: 1px solid #333; padding: 10px; text-align: center; }
+        .stat-val { font-family: 'Cinzel', serif; font-size: 18px; color: var(--text-gold); font-weight: bold; }
+        .stat-desc { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-top: 4px; }
+
+        /* Вкладки (Tabs логика) */
+        .tab-content { display: none; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Нижняя навигация */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 65px; background: var(--bg-dark); border-top: 1px solid var(--border-gold); display: flex; justify-content: space-around; align-items: center; z-index: 100; box-shadow: 0 -5px 20px rgba(0,0,0,0.9); }
+        .nav-item { color: var(--text-muted); font-family: 'Cinzel', serif; font-size: 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; transition: 0.3s; width: 25%; }
+        .nav-item.active { color: var(--text-gold); text-shadow: 0 0 10px rgba(194, 167, 112, 0.5); }
+        .nav-icon { font-size: 20px; }
+    </style>
+</head>
+<body>
+
+    <!-- Вкладка 1: MONITOR (Мониторинг персонажей) -->
+    <div id="tab-monitor" class="tab-content active">
+        
+        <div class="global-controls">
+            <button class="btn start" onclick="tgHaptic('heavy')">▶ Start Farm</button>
+            <button class="btn stop" onclick="tgHaptic('heavy')">⏹ Stop All</button>
+        </div>
+
+        <div class="l2-panel">
+            <div class="panel-title">Party Status</div>
+            
+            <!-- MAIN CHARACTER -->
+            <div class="char-card">
+                <div class="char-header">
+                    <div>
+                        <span class="char-name">DestroGod</span>
+                        <span class="char-role">MAIN</span>
+                    </div>
+                    <div class="status-badge alive">🟢 Farming</div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-row"><div class="bar-label" style="color:var(--cp)">CP</div><div class="bar-wrapper"><div class="bar-fill cp" style="width: 100%;"></div></div></div>
+                    <div class="bar-row"><div class="bar-label" style="color:var(--hp)">HP</div><div class="bar-wrapper"><div class="bar-fill hp" id="mainHp" style="width: 85%;"></div><div class="heal-trigger-line"></div></div></div>
+                    <div class="bar-row"><div class="bar-label" style="color:var(--mp)">MP</div><div class="bar-wrapper"><div class="bar-fill mp" style="width: 40%;"></div></div></div>
+                </div>
+            </div>
+
+            <!-- BUFFER CHARACTER -->
+            <div class="char-card">
+                <div class="char-header">
+                    <div>
+                        <span class="char-name">BuffSlave</span>
+                        <span class="char-role">BUFFER</span>
+                    </div>
+                    <div class="status-badge alive">🟢 Following</div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar-row"><div class="bar-label" style="color:var(--hp)">HP</div><div class="bar-wrapper"><div class="bar-fill hp" style="width: 100%;"></div></div></div>
+                    <div class="bar-row"><div class="bar-label" style="color:var(--mp)">MP</div><div class="bar-wrapper"><div class="bar-fill mp" style="width: 75%;"></div></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Мини-логи (Alerts) -->
+        <div class="l2-panel" style="padding: 10px; font-family: monospace; font-size: 11px;">
+            <div style="color: var(--text-muted)">[14:02:11] DestroGod engaged Varka Silenos.</div>
+            <div style="color: var(--success)">[14:03:05] Drop: 12,500 Adena.</div>
+            <div style="color: var(--warning)">[14:05:22] Warning: Main HP < 40%. Triggering Buffer Heal.</div>
+            <div style="color: var(--success)">[14:05:24] BuffSlave used Greater Heal.</div>
+        </div>
+    </div>
+
+    <!-- Вкладка 2: AUTO (Настройка кликера) -->
+    <div id="tab-auto" class="tab-content">
+        <div class="l2-panel">
+            <div class="panel-title">Automation Logic</div>
+            
+            <div class="setting-row">
+                <div class="setting-info">
+                    <h4>Auto-Heal (Buffer)</h4>
+                    <p>Buffer heals Main if HP < 40%</p>
+                </div>
+                <label class="l2-switch">
+                    <input type="checkbox" checked onchange="tgHaptic('light')">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-row">
+                <div class="setting-info">
+                    <h4>Auto-Ressurect</h4>
+                    <p>Buffer uses Ressurection on Main death</p>
+                </div>
+                <label class="l2-switch">
+                    <input type="checkbox" checked onchange="tgHaptic('light')">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-row">
+                <div class="setting-info">
+                    <h4>Auto-Stop on Disconnect</h4>
+                    <p>Stops clicker if any char drops</p>
+                </div>
+                <label class="l2-switch">
+                    <input type="checkbox" checked onchange="tgHaptic('light')">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="l2-panel">
+            <div class="panel-title">Active Rotation Profile</div>
+            <div class="setting-row" style="justify-content: center;">
+                <select style="background: #000; color: var(--text-gold); border: 1px solid var(--border-gold); padding: 8px; font-family: 'Cinzel'; width: 100%;">
+                    <option>🔥 Varka Farm (Destro + SE)</option>
+                    <option>⚔️ PvP Mode (Macro setup)</option>
+                    <option>🛡️ Safe Farm (Catacombs)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Вкладка 3: VISION (Скриншоты и Аналитика) -->
+    <div id="tab-vision" class="tab-content">
+        <div class="l2-panel">
+            <div class="panel-title">Live Vision (Template Matcher)</div>
+            <div class="screenshot-container">
+                <div class="screen-frame"></div>
+                <button class="btn" style="width: 100%; font-size: 12px;" onclick="tgHaptic('medium')">📸 Request New Screenshot</button>
+            </div>
+        </div>
+
+        <div class="l2-panel">
+            <div class="panel-title">Farm Analytics</div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-val">4.2KK / h</div>
+                    <div class="stat-desc">EXP Speed</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val">2h 15m</div>
+                    <div class="stat-desc">ETA to Lvl Up</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val" style="color: var(--danger)">0</div>
+                    <div class="stat-desc">Deaths Today</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val" style="color: var(--success)">5h 42m</div>
+                    <div class="stat-desc">Session Time</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Вкладка 4: SYSTEM (Железо) -->
+    <div id="tab-system" class="tab-content">
+        <div class="l2-panel">
+            <div class="panel-title">Hardware Monitor</div>
+            <div class="setting-row">
+                <div class="setting-info" style="width: 100%;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <h4>CPU Usage (Ryzen 5)</h4>
+                        <span style="color: var(--warning)">65°C</span>
+                    </div>
+                    <div class="bar-wrapper" style="height: 8px;"><div class="bar-fill" style="width: 45%; background: #c2a770;"></div></div>
+                </div>
+            </div>
+            <div class="setting-row">
+                <div class="setting-info" style="width: 100%;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <h4>RAM Usage</h4>
+                        <span>12.4 / 32 GB</span>
+                    </div>
+                    <div class="bar-wrapper" style="height: 8px;"><div class="bar-fill" style="width: 38%; background: #c2a770;"></div></div>
+                </div>
+            </div>
+            <div class="setting-row">
+                <div class="setting-info" style="width: 100%;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <h4>L2.exe (Main) Memory</h4>
+                        <span>1,204 MB</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Нижняя навигация -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('monitor', this)">
+            <div class="nav-icon">⚔️</div><span>Monitor</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('auto', this)">
+            <div class="nav-icon">⚙️</div><span>Auto</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('vision', this)">
+            <div class="nav-icon">👁️</div><span>Vision</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('system', this)">
+            <div class="nav-icon">🖥️</div><span>System</span>
+        </div>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // Функция вибрации (если поддерживается устройством)
+        function tgHaptic(style = 'light') {
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred(style);
+        }
+
+        // Логика переключения вкладок
+        function switchTab(tabId, element) {
+            tgHaptic('light');
+            
+            // Скрываем все вкладки
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            // Убираем активный класс у всех кнопок меню
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            
+            // Показываем нужную вкладку и активируем кнопку
+            document.getElementById('tab-' + tabId).classList.add('active');
+            element.classList.add('active');
+        }
+
+        // Симуляция работы логики (Мейн теряет ХП, баффер хилит)
+        setInterval(() => {
+            const hpBar = document.getElementById('mainHp');
+            if(!hpBar) return;
+            
+            let currentHp = parseInt(hpBar.style.width);
+            
+            // Мейна бьют
+            if(currentHp > 35) {
+                hpBar.style.width = (currentHp - Math.floor(Math.random() * 10)) + '%';
+            } 
+            // Триггер авто-хила (Меньше 40%)
+            else {
+                // Имитация хила от баффера
+                hpBar.style.background = '#fff'; // Вспышка хила
+                setTimeout(() => {
+                    hpBar.style.background = 'var(--hp)';
+                    hpBar.style.width = '90%';
+                    tgHaptic('success'); // Вибрация при спасительном хиле
+                }, 150);
+            }
+        }, 2000);
+    </script>
+</body>
+</html>

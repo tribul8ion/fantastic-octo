@@ -2,14 +2,22 @@
   "version": 2,
   "builds": [
     {
-      "src": "**/*",
+      "src": "dashboard.html",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "src": "/dashboard.html",
+      "dest": "/dashboard.html"
+    },
+    {
+      "src": "/dashboard.js",
+      "dest": "/dashboard.js"
+    },
+    {
+      "src": "/",
+      "dest": "/dashboard.html"
     }
   ],
   "headers": [
